@@ -10,18 +10,13 @@ def goal_distance(goal_a, goal_b):
 
 
 class NaoEnv(robot_env.RobotEnv):
-	def __init__(
-		self, model_path, n_substeps,block_finger,
-		distance_threshold, reward_type,
-		):
+	def __init__(self, model_path, n_substeps,block_finger,distance_threshold, reward_type):
 		
-		initial_qpos=['RElbowYaw': 0.0, 'RFinger13': 0.0, 'RFinger23': 0.0, 
+		initial_qpos={'RElbowYaw': 0.0, 'RFinger13': 0.0, 'RFinger23': 0.0,
 		'RFinger12': 0.0, 'RShoulderPitch': 0.0, 'RFinger11': 0.0, 'RHand': 0.0, 
 		'RElbowRoll': 0.0, 'RThumb1': 0.0, 'RWristYaw': 0.0, 'RThumb2': 0.0, 'RFinger21': 0.0, 
-		'RShoulderRoll': 0.0, 'RFinger22': 0.0]
+		'RShoulderRoll': 0.0, 'RFinger22': 0.0}
 		
-	
-	   
 		self.block_finger = block_finger   #boolean
 		self.distance_threshold = distance_threshold  
 		self.reward_type = reward_type      #boolean
@@ -49,23 +44,21 @@ class NaoEnv(robot_env.RobotEnv):
 
 	def _step_callback(self):
 		if self.block_finger:
-			self.sim.data.set_joint_qpos('RFinger21_0.10', 0.)
-			self.sim.data.set_joint_qpos('RFinger22_0.10', 0.)
-			self.sim.data.set_joint_qpos('RFinger23_0.10', 0.)
-			self.sim.data.set_joint_qpos('RFinger11_0.10', 0.)
-			self.sim.data.set_joint_qpos('RFinger12_0.10', 0.)
-			self.sim.data.set_joint_qpos('RFinger13_0.10', 0.)
-			self.sim.data.set_joint_qpos('RThumb1_0.10', 0.)
-			self.sim.data.set_joint_qpos('RThumb2_0.10', 0.)
-			
-			
+			self.sim.data.set_joint_qpos('RFinger21', 0.)
+			self.sim.data.set_joint_qpos('RFinger22', 0.)
+			self.sim.data.set_joint_qpos('RFinger23', 0.)
+			self.sim.data.set_joint_qpos('RFinger11', 0.)
+			self.sim.data.set_joint_qpos('RFinger12', 0.)
+			self.sim.data.set_joint_qpos('RFinger13', 0.)
+			self.sim.data.set_joint_qpos('RThumb1', 0.)
+			self.sim.data.set_joint_qpos('RThumb2', 0.)		
 			self.sim.forward()
 #right hand joint from 29 to 42 (including fingers)
 # action space from 29 to 32
 	def _set_action(self, action):
 		assert action.shape == (4,)
 		action = action.copy()  # ensure that we don't change the action outside of this scope
-		action =action * 0.05
+		action =action * 1
 		#rot_ctrl = [1., 0., 1., 0.]  # fixed rotation of the end effector, expressed as a quaternion
 		#gripper_ctrl = np.array([goalripper_ctrl, gripper_ctrl])
 		
@@ -82,22 +75,19 @@ class NaoEnv(robot_env.RobotEnv):
 		# positions
 		reach_xpos = self.sim.data.get_site_xpos('reacher')
 		dt = self.sim.nsubsteps * self.sim.model.opt.timestep
-		reach_velp = self.sim.data.get_site_xvelp('reacher') * dt
+		reach_xvelp = self.sim.data.get_site_xvelp('reacher') * dt
 		#robot_qpos, robot_qvel = utils.robot_get_obs(self.sim)
 		a=self.sim.model.joint_names
 		valqpos=np.array(list(map(self.sim.data.get_joint_qpos,a)))
 		valqvel=np.array(list(map(self.sim.data.get_joint_qvel,a)))
 
-		obj_pos=self.sim.data.get_body_xpos("target")
-		obj_velp = self.sim.data.get_body_xvelp('target') * dt
-		obj_velr = self.sim.data.get_body_xvelr('target') * dt
-		obj_rel_pos= obj_pos - finger_xpos
+		obj_pos=self.sim.data.get_site_xpos("target")
+		obj_velp = self.sim.data.get_site_xvelp('target') * dt
+		obj_velr = self.sim.data.get_site_xvelr('target') * dt
+		obj_rel_pos= obj_pos-reach_xpos #- finger_xpos
 			
 		obs=np.concatenate([reach_xpos,obj_pos,obj_rel_pos,valqpos[0:5],reach_xvelp,obj_velp,obj_velr,valqvel[0:5]])
-
 		
-		
-
 		return {
 			'observation': obs.copy(),
 			'achieved_goal': reach_xpos.copy(),
@@ -124,7 +114,7 @@ class NaoEnv(robot_env.RobotEnv):
 
 	def _sample_goal(self):
 		while (1):
-			qpos = self.hinge + 200*self.np_random.uniform(low=-.2, high=.2, size=3)
+			qpos = self.hinge + .5*self.np_random.uniform(low=-.2, high=.2, size=3)
 			if np.linalg.norm(qpos) <= .25:
 				break
 

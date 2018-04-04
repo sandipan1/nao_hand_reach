@@ -107,4 +107,13 @@
             </body>
         
     </worldbody>
+    <actuator>
+        
+        <position ctrllimited="true" ctrlrange="-1.0 1.0" gear="200.0" joint="RShoulderPitch" kp="1"/>
+        <position ctrllimited="true" ctrlrange="-1.0 1.0" gear="200.0" joint="RShoulderRoll" kp="1"/>
+        <position ctrllimited="true" ctrlrange="-1.0 1.0" gear="200.0" joint="RElbowYaw"/>
+        <position ctrllimited="true" ctrlrange="-1.0 1.0" gear="200.0" joint="RElbowRoll"/>
+
+        
+    </actuator>
 </mujoco>    
