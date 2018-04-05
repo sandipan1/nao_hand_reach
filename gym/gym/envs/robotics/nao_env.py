@@ -12,10 +12,9 @@ def goal_distance(goal_a, goal_b):
 class NaoEnv(robot_env.RobotEnv):
 	def __init__(self, model_path, n_substeps,block_finger,distance_threshold, reward_type):
 		
-		initial_qpos={'RElbowYaw': 0.0, 'RFinger13': 0.0, 'RFinger23': 0.0,
-		'RFinger12': 0.0, 'RShoulderPitch': 0.0, 'RFinger11': 0.0, 'RHand': 0.0, 
-		'RElbowRoll': 0.0, 'RThumb1': 0.0, 'RWristYaw': 0.0, 'RThumb2': 0.0, 'RFinger21': 0.0, 
-		'RShoulderRoll': 0.0, 'RFinger22': 0.0}
+		initial_qpos={'RElbowYaw': 0.0, 
+		'RElbowRoll': 0.0,  
+		'RShoulderRoll': 0.0, "RShoulderPitch":0.0}
 		
 		self.block_finger = block_finger   #boolean
 		self.distance_threshold = distance_threshold  
@@ -43,33 +42,18 @@ class NaoEnv(robot_env.RobotEnv):
 	# ----------------------------
 
 	def _step_callback(self):
-		if self.block_finger:
-			self.sim.data.set_joint_qpos('RFinger21', 0.)
-			self.sim.data.set_joint_qpos('RFinger22', 0.)
-			self.sim.data.set_joint_qpos('RFinger23', 0.)
-			self.sim.data.set_joint_qpos('RFinger11', 0.)
-			self.sim.data.set_joint_qpos('RFinger12', 0.)
-			self.sim.data.set_joint_qpos('RFinger13', 0.)
-			self.sim.data.set_joint_qpos('RThumb1', 0.)
-			self.sim.data.set_joint_qpos('RThumb2', 0.)		
-			self.sim.forward()
+		pass
+		
 #right hand joint from 29 to 42 (including fingers)
 # action space from 29 to 32
+
 	def _set_action(self, action):
 		assert action.shape == (4,)
 		action = action.copy()  # ensure that we don't change the action outside of this scope
 		action =action * 1
-		#rot_ctrl = [1., 0., 1., 0.]  # fixed rotation of the end effector, expressed as a quaternion
-		#gripper_ctrl = np.array([goalripper_ctrl, gripper_ctrl])
 		
-		#assert gripper_ctrl.shape == (2,)
-		# if self.block_finger:
-		#     gripper_ctrl = np.zeros_like(gripper_ctrl)
-		#action = np.concatenate([pos_ctrl, rot_ctrl, gripper_ctrl])
-
-		# Apply action to simulation.
 		utils.ctrl_set_action(self.sim, action)
-		#utils.mocap_set_action(self.sim, action)
+		
 
 	def _get_obs(self):
 		# positions

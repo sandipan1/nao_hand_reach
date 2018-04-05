@@ -8,3 +8,5 @@ class NaoReach(nao_env.NaoEnv):
 		print(9)
 		nao_env.NaoEnv.__init__(self, 'nao_hand.xml',reward_type=reward_type,distance_threshold=0.05,n_substeps=20,block_finger=True)
 		utils.EzPickle.__init__(self)
+
+
