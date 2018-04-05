@@ -19,11 +19,11 @@ class NaoEnv(robot_env.RobotEnv):
 		self.block_finger = block_finger   #boolean
 		self.distance_threshold = distance_threshold  
 		self.reward_type = reward_type      #boolean
-		self.hinge=[-0.001,-0.09387237 ,0.1245455 ]
-
+		self.hinge=[-0.001,-0.09387237 ,0.01 ]
 		super(NaoEnv, self).__init__(
 			model_path=model_path, n_substeps=n_substeps, n_actions=4,
 			initial_qpos=initial_qpos)
+		
 
 
 		# initialize all the joints with a fixed in __init__
@@ -51,8 +51,10 @@ class NaoEnv(robot_env.RobotEnv):
 		assert action.shape == (4,)
 		action = action.copy()  # ensure that we don't change the action outside of this scope
 		action =action * 1
+		for i in range(len(self.joint_name_list)):
+			prev_state=self.sim.data.get_joint_qpos(self.joint_name_list[i])
+			self.sim.data.set_joint_qpos(self.joint_name_list[i],prev_state+action[i])
 		
-		utils.ctrl_set_action(self.sim, action)
 		
 
 	def _get_obs(self):
@@ -61,9 +63,9 @@ class NaoEnv(robot_env.RobotEnv):
 		dt = self.sim.nsubsteps * self.sim.model.opt.timestep
 		reach_xvelp = self.sim.data.get_site_xvelp('reacher') * dt
 		#robot_qpos, robot_qvel = utils.robot_get_obs(self.sim)
-		a=self.sim.model.joint_names
-		valqpos=np.array(list(map(self.sim.data.get_joint_qpos,a)))
-		valqvel=np.array(list(map(self.sim.data.get_joint_qvel,a)))
+		self.joint_name_list=self.sim.model.joint_names
+		valqpos=np.array(list(map(self.sim.data.get_joint_qpos,self.joint_name_list)))
+		valqvel=np.array(list(map(self.sim.data.get_joint_qvel,self.joint_name_list)))
 
 		obj_pos=self.sim.data.get_site_xpos("target")
 		obj_velp = self.sim.data.get_site_xvelp('target') * dt
