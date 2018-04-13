@@ -74,7 +74,7 @@ class FetchEnv(robot_env.RobotEnv):
 
         pos_ctrl *= 0.05  # limit maximum change in position
         rot_ctrl = [1., 0., 1., 0.]  # fixed rotation of the end effector, expressed as a quaternion
-        gripper_ctrl = np.array([goalripper_ctrl, gripper_ctrl])
+        gripper_ctrl = np.array([gripper_ctrl, gripper_ctrl])
         assert gripper_ctrl.shape == (2,)
         if self.block_gripper:
             gripper_ctrl = np.zeros_like(gripper_ctrl)

@@ -306,7 +306,7 @@ for reward_type in ['sparse', 'dense']:
 
     #Nao
     register(
-        id='Nao_reach{}-v0'.format(suffix),
+        id='NaoReach{}-v0'.format(suffix),
         entry_point='gym.envs.robotics:NaoReach',
         max_episode_steps=50)
 

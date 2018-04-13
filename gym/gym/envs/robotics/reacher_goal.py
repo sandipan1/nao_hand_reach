@@ -40,7 +40,7 @@ class ReacherGoal(robot_env.RobotEnv):
 		pos_ctrl *= 0.05  # limit maximum change in position
 
 		# Apply action to simulation.
-		utils.ctrl_set_action(self.sim, action)
+		utils.ctrl_set_action(self.sim, pos_ctrl)
 		#utils.mocap_set_action(self.sim, action)
 
 	def _get_obs(self):
@@ -52,9 +52,9 @@ class ReacherGoal(robot_env.RobotEnv):
 		valqpos=np.array(list(map(self.sim.data.get_joint_qpos,a)))
 		valqvel=np.array(list(map(self.sim.data.get_joint_qvel,a)))
 		valqvel=valqvel * dt
-		obj_pos=self.sim.data.get_body_xpos("target")
-		obj_velp = self.sim.data.get_body_xvelp('target') * dt
-		obj_velr = self.sim.data.get_body_xvelr('target') * dt
+		obj_pos=self.sim.data.get_site_xpos("target")
+		obj_velp = self.sim.data.get_site_xvelp('target') * dt
+		obj_velr = self.sim.data.get_site_xvelr('target') * dt
 		obj_rel_pos= obj_pos - finger_xpos
 
 		obs=np.concatenate([finger_xpos,obj_pos,obj_rel_pos,valqpos[:2],finger_xvelp,obj_velp,obj_velr,valqvel[:2]])
@@ -68,9 +68,8 @@ class ReacherGoal(robot_env.RobotEnv):
 	def _render_callback(self):
 	    # Visualize target.
 	    #sites_offset = (self.sim.data.site_xpos - self.sim.model.site_pos).copy()
-	    #site_id = self.sim.model.site_name2id('target0')
-	    #self.sim.model.site_pos[site_id] = self.goal - sites_offset[0]
-	    
+	    site_id = self.sim.model.site_name2id('target')
+	    self.sim.model.site_pos[site_id] = [self.goal,0]
 	    self.sim.forward()
 
 	def _viewer_setup(self):
